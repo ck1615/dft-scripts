@@ -53,7 +53,7 @@ def main():
     assert element in ['Cu', 'Mg'], "Element has to be Cu or Mg."
 
     if element == "Cu":
-        HSfile = 'La2CuO4_HTT.9.4_norumpling.cif'
+        HSfile = 'La2CuO4_HTT.9.4.norumpling.cif'
 
         norump_direc = "/Users/christopherkeegan/OneDrive - Imperial" +\
                        ' College London/Documents/PhD_Research/phd-project/' +\
@@ -63,7 +63,7 @@ def main():
             shutil.copy(norump_direc, '.')
 
     elif element == "Mg":
-        HSfile = 'La2MgO4_HTT.4.0_norumpling.cif'
+        HSfile = 'La2MgO4_HTT.4.0.norumpling.cif'
 
         norump_direc = "/Users/christopherkeegan/OneDrive - Imperial" +\
                        ' College London/Documents/PhD_Research/phd-project/' +\
@@ -81,17 +81,19 @@ def extract_modes_data(HSfile):
     assert ".cif" in HSfile, "This is not a .cif file."
 
     LSfiles = [f for f in glob("*.cif") if 'norumpling' not in f]
+    LSfiles = LSfiles[:2]
 
     mode_dict = {}
-    ISO = isodistort(HSfile, silent=True)
+    Iso = isodistort(HSfile, silent=False)
     for fname in LSfiles:
         print(fname)
-        ISO.load_lowsym_structure(fname)
-        ISO.view_modes()
-        gm1p = ISO.modevalues['GM1+'][:2]
-        x3p = ISO.modevalues['X3+']
+        Iso.load_lowsym_structure(fname)
+        Iso.get_mode_labels()
+        gm1p = Iso.modevalues['GM1+'][:2]
+        x3p = Iso.modevalues['X3+']
+        print(gm1p, x3p)
         mode_dict[fname] = {'GM1+': gm1p, 'X3+': x3p}
-    ISO.close()
+    Iso.close()
     np.save('mode_dict.npy', mode_dict, allow_pickle="TRUE")
 
 
