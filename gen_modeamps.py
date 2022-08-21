@@ -17,23 +17,27 @@ def main():
     no rumpling above.
     """
 
-    # Create RawCIFs
+    # Create RawCIFs and SymmetrisedCIFs directories if not present
     if not os.path.isdir('SymmetrisedCIFs'):
         os.mkdir('SymmetrisedCIFs')
 
     if not os.path.isdir('RawCIFs'):
         os.mkdir('RawCIFs')
 
-    # Create all unsymmetrised CIF files
-    for fname in glob("*.vc-relax.out"):
-        print(fname)
+    # Define filenames
+    filenames = glob("*.vc-relax.out")
+
+    # Create all CIF files
+    print('Creating CIF files')
+    for fname in filenames:
         cifname = fname.replace('.vc-relax.out', '.cif')
+        # Raw CIF files (ASE output)
         if not os.path.exists('RawCIFs/{}'.format(cifname)):
             write(cifname, read(fname))
             shutil.copy(cifname, 'RawCIFs')
         else:
             continue
-
+        # Symmetrised CIF files (FINDSYM output)
         if not os.path.exists('SymmetrisedCIFs/{}'.format(cifname)):
             # Make symmetrised CIFs
             findsym_wrap(cifname, print_cif=True, axeso='abc', axesm='ab(c)',
@@ -45,13 +49,9 @@ def main():
     os.chdir('RawCIFs')
 
     # Move the reference structure
-    try:
-        element = sys.argv[1]
-    except IndexError:
-        IndexError('No element was given')
+    element = get_element(filenames[0])
 
-    assert element in ['Cu', 'Mg'], "Element has to be Cu or Mg."
-
+    # Define directory and high-symmetry file for mode decomposition
     if element == "Cu":
         HSfile = 'La2CuO4_HTT.9.4.norumpling.cif'
 
@@ -76,23 +76,46 @@ def main():
     #Extract modes
     extract_modes_data(HSfile)
 
+
+def get_element(fname):
+    '''
+    This function gets the B-site ion given the a sample filename
+    '''
+
+    return fname.split('La2')[-1].split('O4')[0]
+
 def extract_modes_data(HSfile):
 
     assert ".cif" in HSfile, "This is not a .cif file."
 
+    # Get list of low-symmetry files
     LSfiles = [f for f in glob("*.cif") if 'norumpling' not in f]
-    LSfiles = LSfiles[:2]
 
-    mode_dict = {}
-    Iso = isodistort(HSfile, silent=False)
+    # If present, get the mode_dict and add to it
+    if os.path.exists('mode_dict.npy'):
+        mode_dict = np.load('mode_dict.npy', allow_pickle='TRUE').item()
+        LSfiles = [i for i in LSfiles if i not in mode_dict]
+    else:
+        mode_dict = {}
+
+    Iso = isodistort(HSfile, silent=True)
     for fname in LSfiles:
-        print(fname)
-        Iso.load_lowsym_structure(fname)
-        Iso.get_mode_labels()
-        gm1p = Iso.modevalues['GM1+'][:2]
-        x3p = Iso.modevalues['X3+']
-        print(gm1p, x3p)
-        mode_dict[fname] = {'GM1+': gm1p, 'X3+': x3p}
+        if fname not in mode_dict:
+            try:
+                Iso.load_lowsym_structure(fname)
+                try:
+                    Iso.get_mode_labels()
+                except:
+                    continue
+                gm1p = Iso.modevalues['GM1+'][:2]
+                try:
+                    x3p = Iso.modevalues['X3+']
+                except KeyError:
+                    x3p = [0.0]
+                print(fname, gm1p, x3p)
+                mode_dict[fname] = {'GM1+': gm1p, 'X3+': x3p}
+            except:
+                continue
     Iso.close()
     np.save('mode_dict.npy', mode_dict, allow_pickle="TRUE")
 
