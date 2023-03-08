@@ -76,7 +76,6 @@ def main():
     #Extract modes
     extract_modes_data(HSfile)
 
-
 def get_element(fname):
     '''
     This function gets the B-site ion given the a sample filename
