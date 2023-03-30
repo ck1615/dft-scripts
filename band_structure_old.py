@@ -141,7 +141,6 @@ class BandStructure:
                 "lattice parameter (alat)")].split()[-2]) * Bohr
         return None
 
-
     def get_eFermi(self):
         """
         This function gathers the Fermi energy in eV.
@@ -165,12 +164,10 @@ class BandStructure:
             pass
         return None
 
-
     def get_data(self):
 
         with open(self.fname, 'r') as file:
             self.Lines = file.readlines()
-
 
     def get_qe_calc_type(self):
 
@@ -238,7 +235,6 @@ class BandStructure:
 
 
         return None
-
 
     def read_castep_bands(self, data):
 
@@ -367,7 +363,6 @@ class BandStructure:
 
         return None
 
-
     def get_qe_spinpol_bands(self):
         """
         Function returns the KS eigenvalues at all k-points at the end of a
@@ -447,7 +442,6 @@ class BandStructure:
 
         return None
 
-
     def get_kpath_indices(self):
         """
         This function takes a set of k-points and associates to it a list of
@@ -467,7 +461,6 @@ class BandStructure:
                 path[0]) for idx in path]
 
         return None
-
 
     def get_kpoint_locations(self, evals):
 
@@ -492,7 +485,6 @@ class BandStructure:
             occLocs = None
 
         return (kLocs, occLocs)
-
 
     def get_kpoint(self, evals, l):
 
@@ -543,7 +535,6 @@ class BandStructure:
 
         return kps
 
-
     def get_eigenvalues(self, kp_eigvals):
 
         """
@@ -570,7 +561,6 @@ class BandStructure:
                     raise AssertionError("Too many values stuck together.")
         return eK
 
-
     def return_hyphen_separated_vals(self, val):
         """
         Function returns list of floats when they are separated by '-' in
@@ -593,7 +583,6 @@ class BandStructure:
         else:
             eK.append(float(val))
         return eK
-
 
     def get_qe_nonspinpol_bands(self):
         """
@@ -648,7 +637,6 @@ class BandStructure:
 
         return None
 
-
     def band_gap(self):
         """
         This function gets the band numbers of the highest occupied (HO) and
@@ -688,7 +676,6 @@ class BandStructure:
 
         return None
 
-
     def plot_bs(self):
         """
         This function plots the band structure using the bands parsed by the
@@ -716,7 +703,6 @@ class BandStructure:
         plt.savefig(plotname)
 
         return None
-
 
     def plot_bs_special(self):
         s = 5
